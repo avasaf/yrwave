@@ -70,25 +70,35 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     fetch(finalUrl)
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text() })
       .then(text => {
-        const t = text.trim()
-        let svgString: string
+        try {
+          const t = text.trim()
+          let svgString: string
 
-        if (t.startsWith('<svg') || t.startsWith('<?xml')) {
-          svgString = t
-        } else {
-          const doc = new DOMParser().parseFromString(t, 'text/html')
-          const svgEl = doc.querySelector('svg')
-          if (!svgEl) throw new Error('No SVG element found in fetched content.')
-          svgString = svgEl.outerHTML
-        }
+          if (t.startsWith('<svg') || t.startsWith('<?xml')) {
+            svgString = t
+          } else {
+            const doc = new DOMParser().parseFromString(t, 'text/html')
+            const svgEl = doc.querySelector('svg')
+            if (!svgEl) throw new Error('No SVG element found in fetched content.')
+            svgString = svgEl.outerHTML
+          }
 
-        this.processSvg(svgString)
+          this.processSvg(svgString)
 
-        if (svgString.startsWith('<svg')) {
-          this.props.onSettingChange({
-            id: this.props.id,
-            config: this.props.config.set('svgCode', svgString)
-          })
+          if (svgString.startsWith('<svg') && typeof this.props.onSettingChange === 'function') {
+            this.props.onSettingChange({
+              id: this.props.id,
+              config: this.props.config.set('svgCode', svgString)
+            })
+          }
+        } catch (err) {
+          console.error('Error processing SVG:', err)
+          this.setState({ error: 'Failed to process SVG. Using fallback if available.', isLoading: false })
+
+          const fallback = this.state.rawSvg || this.props.config.svgCode
+          if (fallback && fallback.trim().startsWith('<svg')) {
+            this.processSvg(fallback)
+          }
         }
       })
       .catch(err => {
