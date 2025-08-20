@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { React, jsx, type AllWidgetSettingProps } from 'jimu-core'
-import { NumericInput, TextInput, Switch } from 'jimu-ui'
+import { NumericInput } from 'jimu-ui'
 import { SettingSection, SettingRow } from 'jimu-ui/advanced/setting-components'
 import { ThemeColorPicker } from 'jimu-ui/basic/color-picker'
 import { type IMConfig } from '../runtime/config'
@@ -47,43 +47,6 @@ export default class Setting extends React.PureComponent<AllWidgetSettingProps<I
 
     return (
       <div className="jimu-widget-setting">
-        <SettingSection title={intl.formatMessage({ id: 'dataSource', defaultMessage: defaultMessages.dataSource })}>
-          <div style={{ marginBottom: '12px' }}>
-            <span style={{ ...labelTextStyle, display: 'block', marginBottom: '4px' }}>
-              {intl.formatMessage({ id: 'sourceUrl', defaultMessage: defaultMessages.sourceUrl })}
-            </span>
-            <TextInput
-              value={config.sourceUrl}
-              onChange={(e) => { this.onConfigChange('sourceUrl', e.target.value) }}
-              placeholder="https://www.yr.no/en/content/.../meteogram.svg"
-            />
-          </div>
-
-          <div style={horizontalRowStyle}>
-            <span style={labelTextStyle}>{intl.formatMessage({ id: 'autoRefresh', defaultMessage: defaultMessages.autoRefresh })}</span>
-            <Switch
-              checked={config.autoRefreshEnabled}
-              onChange={(evt) => { this.onConfigChange('autoRefreshEnabled', evt.target.checked) }}
-            />
-          </div>
-
-          {config.autoRefreshEnabled && (
-            <div style={horizontalRowStyle}>
-              <span style={labelTextStyle}>{intl.formatMessage({ id: 'refreshInterval', defaultMessage: defaultMessages.refreshInterval })}</span>
-              <NumericInput
-                style={narrowNumericBoxStyle}
-                value={config.refreshInterval}
-                onAcceptValue={(value) => { this.onConfigChange('refreshInterval', value) }}
-                min={1}
-                step={1}
-                size="sm"
-                showHandlers={false}
-                suffix="min"
-              />
-            </div>
-          )}
-        </SettingSection>
-
         <SettingSection title={intl.formatMessage({ id: 'fallbackContent', defaultMessage: defaultMessages.fallbackContent })}>
           <textarea
             style={svgCodeBoxStyle}
@@ -96,9 +59,6 @@ export default class Setting extends React.PureComponent<AllWidgetSettingProps<I
         <SettingSection title={intl.formatMessage({ id: 'generalStyling', defaultMessage: defaultMessages.generalStyling })}>
           <SettingRow label={intl.formatMessage({ id: 'overallBackground', defaultMessage: defaultMessages.overallBackground })}>
             <ThemeColorPicker value={config.overallBackground} onChange={(color) => { this.onConfigChange('overallBackground', color) }} />
-          </SettingRow>
-          <SettingRow label="Refresh Icon">
-            <ThemeColorPicker value={config.refreshIconColor} onChange={(color) => { this.onConfigChange('refreshIconColor', color) }} />
           </SettingRow>
           <div style={horizontalRowStyle}>
             <span style={labelTextStyle}>{intl.formatMessage({ id: 'padding', defaultMessage: defaultMessages.padding })}</span>

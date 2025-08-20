@@ -1,122 +1,47 @@
 /** @jsx jsx */
 import { React, AllWidgetProps, jsx, css, type SerializedStyles } from 'jimu-core'
-import { Loading } from 'jimu-ui'
 import { type IMConfig } from './config'
 
 interface State {
   svgHtml: string
-  isLoading: boolean
   error: string | null
   rawSvg: string | null
 }
 
 export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>, State> {
-  private refreshIntervalId: NodeJS.Timer = null
-
   constructor (props) {
     super(props)
-    this.state = { svgHtml: null, isLoading: false, error: null, rawSvg: null }
+    this.state = { svgHtml: null, error: null, rawSvg: null }
   }
 
   componentDidMount(): void {
-    this.handleDataSourceChange()
-    this.setupAutoRefresh()
+    this.updateFromConfig()
   }
 
   componentDidUpdate(prevProps: AllWidgetProps<IMConfig>): void {
     const cfg = this.props.config
     const prev = prevProps.config
-    const fetchRelevantChanged =
-      cfg.sourceUrl !== prev.sourceUrl ||
-      cfg.autoRefreshEnabled !== prev.autoRefreshEnabled ||
-      cfg.refreshInterval !== prev.refreshInterval
-
-    if (fetchRelevantChanged) {
-      this.handleDataSourceChange()
-      this.setupAutoRefresh()
-    } else if (cfg !== prev) {
-      if (this.state.rawSvg) this.processSvg(this.state.rawSvg)
+    if (cfg.svgCode !== prev.svgCode) {
+      this.updateFromConfig()
+    } else if (cfg !== prev && this.state.rawSvg) {
+      this.processSvg(this.state.rawSvg)
     }
   }
 
-  componentWillUnmount(): void {
-    if (this.refreshIntervalId) clearInterval(this.refreshIntervalId)
-  }
-
-  handleDataSourceChange = () => {
-    const { config } = this.props
-    if (config.sourceUrl) {
-      this.fetchSvgFromUrl(config.sourceUrl)
-    } else if (config.svgCode && !config.svgCode.trim().startsWith('<!--')) {
-      this.processSvg(config.svgCode)
+  updateFromConfig = (): void => {
+    const { svgCode } = this.props.config
+    if (svgCode && !svgCode.trim().startsWith('<!--')) {
+      this.processSvg(svgCode)
     } else {
-      this.setState({ svgHtml: null, error: null, isLoading: false, rawSvg: null })
+      this.setState({ svgHtml: null, error: null, rawSvg: null })
     }
-  }
-
-  setupAutoRefresh = (): void => {
-    if (this.refreshIntervalId) clearInterval(this.refreshIntervalId)
-    if (this.props.config.autoRefreshEnabled && this.props.config.refreshInterval > 0 && this.props.config.sourceUrl) {
-      const ms = this.props.config.refreshInterval * 60 * 1000
-      this.refreshIntervalId = setInterval(() => this.fetchSvgFromUrl(this.props.config.sourceUrl), ms)
-    }
-  }
-
-  fetchSvgFromUrl = (url: string): void => {
-    this.setState({ isLoading: true, error: null })
-    const proxyUrl = 'https://api.allorigins.win/raw?url='
-    const finalUrl = `${proxyUrl}${encodeURIComponent(url)}`
-
-    fetch(finalUrl)
-      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.text() })
-      .then(text => {
-        try {
-          const t = text.trim()
-          let svgString: string
-
-          if (t.startsWith('<svg') || t.startsWith('<?xml')) {
-            svgString = t
-          } else {
-            const doc = new DOMParser().parseFromString(t, 'text/html')
-            const svgEl = doc.querySelector('svg')
-            if (!svgEl) throw new Error('No SVG element found in fetched content.')
-            svgString = svgEl.outerHTML
-          }
-
-          this.processSvg(svgString)
-
-          if (svgString.startsWith('<svg') && typeof this.props.onSettingChange === 'function') {
-            this.props.onSettingChange({
-              id: this.props.id,
-              config: this.props.config.set('svgCode', svgString)
-            })
-          }
-        } catch (err) {
-          console.error('Error processing SVG:', err)
-          this.setState({ error: 'Failed to process SVG. Using fallback if available.', isLoading: false })
-
-          const fallback = this.state.rawSvg || this.props.config.svgCode
-          if (fallback && fallback.trim().startsWith('<svg')) {
-            this.processSvg(fallback)
-          }
-        }
-      })
-      .catch(err => {
-        console.error('Failed to fetch SVG:', err)
-        this.setState({ error: 'Failed to load graph. Using fallback if available.', isLoading: false })
-
-        const fallback = this.state.rawSvg || this.props.config.svgCode
-        if (fallback && fallback.trim().startsWith('<svg')) {
-          this.processSvg(fallback)
-        }
-      })
   }
 
   processSvg = (svgCode: string): void => {
     const { config } = this.props
     const doc = new DOMParser().parseFromString(svgCode, 'image/svg+xml')
     const svg = doc.querySelector('svg')
-    if (!svg) { this.setState({ error: 'Invalid SVG content', isLoading: false }); return }
+    if (!svg) { this.setState({ error: 'Invalid SVG content' }); return }
 
     if (!svg.hasAttribute('viewBox')) {
       const w = svg.getAttribute('width')?.replace('px', '')
@@ -145,19 +70,11 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
       if (html) html.setAttribute('style', `${html.getAttribute('style') || ''};background:${config.overallBackground} !important;`)
     })
 
-    this.setState({ svgHtml: svg.outerHTML, isLoading: false, error: null, rawSvg: svgCode })
+    this.setState({ svgHtml: svg.outerHTML, error: null, rawSvg: svgCode })
   }
 
   buildScopedCss = (config: IMConfig, scope: string) => `
     .${scope} { background-color: ${config.overallBackground}; position: relative; }
-
-    .${scope} .refresh-button {
-      position: absolute; top: 12px; right: 12px;
-      cursor: pointer; background: rgba(255,255,255,0.7);
-      border-radius: 50%; padding: 2px; z-index: 10; line-height: 0; border: none;
-      color: ${config.refreshIconColor};
-    }
-    .${scope} .refresh-button svg path { stroke: currentColor !important; fill: none !important; }
 
     .${scope} .svg-image-container svg { width:100%; height:100%; display:block; background-color:${config.overallBackground} !important; }
 
@@ -260,34 +177,19 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
   render(): React.ReactElement {
     const { config, id } = this.props
-    const { isLoading, error, svgHtml } = this.state
+    const { error, svgHtml } = this.state
     const scopeClass = `yrw-${id}`
 
-    if (isLoading) return <Loading />
     if (error) return <div style={{ padding: '10px', textAlign: 'center', color: 'red' }}>{error}</div>
 
     return (
       <div className={scopeClass} css={this.getStyle(config)}>
         <style dangerouslySetInnerHTML={{ __html: this.buildScopedCss(config, scopeClass) }} />
 
-        {this.props.config.sourceUrl && (
-          <button
-            className="refresh-button"
-            onClick={() => this.fetchSvgFromUrl(config.sourceUrl)}
-            title="Refresh graph"
-            aria-label="Refresh graph"
-          >
-            <svg viewBox="0 0 24 24" width="14" height="14" role="img" aria-hidden="true">
-              <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                d="M21 12a9 9 0 1 1-3.4-7L21 8m0-4v4h-4" />
-            </svg>
-          </button>
-        )}
-
         {svgHtml
           ? <div className="svg-image-container" dangerouslySetInnerHTML={{ __html: svgHtml }} />
           : <div style={{ padding: 10, textAlign: 'center' }}>
-              Please configure a Source URL or provide Fallback SVG Code.
+              Please provide SVG Code.
             </div>}
       </div>
     )
