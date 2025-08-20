@@ -142,7 +142,7 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     .${scope} { background-color: ${config.overallBackground}; position: relative; }
 
     .${scope} .refresh-button {
-      position: absolute; top: 8px; right: 8px;
+      position: absolute; top: 12px; right: 12px;
       cursor: pointer; background: rgba(255,255,255,0.7);
       border-radius: 50%; padding: 2px; z-index: 10; line-height: 0; border: none;
       color: ${config.refreshIconColor};
