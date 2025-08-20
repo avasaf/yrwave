@@ -19,5 +19,11 @@
   "windGustLineColor": "#E6D300",
   "precipitationBarColor": "#006EDB",
   "maxPrecipitationColor": "#00B8F1",
+  "coastWindColor": "#AA00F2",
+  "coastWindGustColor": "#E6D300",
+  "waveHeightColor": "#00B8F1",
+  "seaCurrentColor": "#006EDB",
+  "seaAirTempColor": "#C60000",
+  "seaWaterTempColor": "#0097A7",
   "refreshIconColor": "#333333"
 }

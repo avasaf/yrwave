@@ -169,6 +169,27 @@ export default class Setting extends React.PureComponent<AllWidgetSettingProps<I
             <ThemeColorPicker value={config.maxPrecipitationColor} onChange={(color) => { this.onConfigChange('maxPrecipitationColor', color) }} />
           </SettingRow>
         </SettingSection>
+
+        <SettingSection title={intl.formatMessage({ id: 'coastGraphColors', defaultMessage: defaultMessages.coastGraphColors })}>
+          <SettingRow label={intl.formatMessage({ id: 'coastWindColor', defaultMessage: defaultMessages.coastWindColor })}>
+            <ThemeColorPicker value={config.coastWindColor} onChange={(color) => { this.onConfigChange('coastWindColor', color) }} />
+          </SettingRow>
+          <SettingRow label={intl.formatMessage({ id: 'coastWindGustColor', defaultMessage: defaultMessages.coastWindGustColor })}>
+            <ThemeColorPicker value={config.coastWindGustColor} onChange={(color) => { this.onConfigChange('coastWindGustColor', color) }} />
+          </SettingRow>
+          <SettingRow label={intl.formatMessage({ id: 'waveHeightColor', defaultMessage: defaultMessages.waveHeightColor })}>
+            <ThemeColorPicker value={config.waveHeightColor} onChange={(color) => { this.onConfigChange('waveHeightColor', color) }} />
+          </SettingRow>
+          <SettingRow label={intl.formatMessage({ id: 'seaCurrentColor', defaultMessage: defaultMessages.seaCurrentColor })}>
+            <ThemeColorPicker value={config.seaCurrentColor} onChange={(color) => { this.onConfigChange('seaCurrentColor', color) }} />
+          </SettingRow>
+          <SettingRow label={intl.formatMessage({ id: 'seaAirTempColor', defaultMessage: defaultMessages.seaAirTempColor })}>
+            <ThemeColorPicker value={config.seaAirTempColor} onChange={(color) => { this.onConfigChange('seaAirTempColor', color) }} />
+          </SettingRow>
+          <SettingRow label={intl.formatMessage({ id: 'seaWaterTempColor', defaultMessage: defaultMessages.seaWaterTempColor })}>
+            <ThemeColorPicker value={config.seaWaterTempColor} onChange={(color) => { this.onConfigChange('seaWaterTempColor', color) }} />
+          </SettingRow>
+        </SettingSection>
       </div>
     )
   }

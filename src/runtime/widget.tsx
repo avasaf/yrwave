@@ -204,6 +204,22 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
     .${scope} .svg-image-container svg #max-precipitation-pattern rect { fill: ${config.maxPrecipitationColor} !important; opacity: 0.3 !important; }
     .${scope} .svg-image-container svg #max-precipitation-pattern line { stroke: ${config.maxPrecipitationColor} !important; opacity: 1 !important; }
 
+    /* Coastal graph series */
+    .${scope} .coast-graph__wind { color: ${config.coastWindColor} !important; }
+    .${scope} .graph-line--dashed.coast-graph__wind { color: ${config.coastWindGustColor} !important; }
+    .${scope} .coast-graph__wave-height { color: ${config.waveHeightColor} !important; }
+    .${scope} .coast-graph__sea-current { color: ${config.seaCurrentColor} !important; }
+    .${scope} .graph-temperature-line>.graph-line:not(.graph-line--dashed) { color: ${config.seaAirTempColor} !important; }
+    .${scope} .graph-temperature-line>.graph-line--dashed { color: ${config.seaWaterTempColor} !important; }
+
+    /* Coastal graph legend chips */
+    .${scope} [data-type="wind-curve"] .graph-legend-new__line { color: ${config.coastWindColor} !important; }
+    .${scope} [data-type="wind-gust-curve"] .graph-legend-new__line { color: ${config.coastWindGustColor} !important; }
+    .${scope} [data-type="wave-height-curve"] .graph-legend-new__line { color: ${config.waveHeightColor} !important; }
+    .${scope} [data-type="sea-current-curve"] .graph-legend-new__line { color: ${config.seaCurrentColor} !important; }
+    .${scope} [data-type="sea-air-temp-curve"] .graph-legend-new__line { color: ${config.seaAirTempColor} !important; }
+    .${scope} [data-type="sea-water-temp-curve"] .graph-legend-new__line { color: ${config.seaWaterTempColor} !important; }
+
     /* Logos */
     .${scope} .svg-image-container svg svg[x="16"] circle { fill: ${config.yrLogoBackgroundColor} !important; }
     .${scope} .svg-image-container svg svg[x="16"] path   { fill: ${config.yrLogoTextColor} !important; }
