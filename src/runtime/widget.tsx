@@ -9,6 +9,7 @@ interface State {
 }
 
 export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>, State> {
+  private refreshTimer?: number
   constructor (props) {
     super(props)
     this.state = { svgHtml: null, error: null, rawSvg: null }
@@ -16,25 +17,97 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
 
   componentDidMount(): void {
     this.updateFromConfig()
+    this.setupRefreshTimer()
   }
 
   componentDidUpdate(prevProps: AllWidgetProps<IMConfig>): void {
     const cfg = this.props.config
     const prev = prevProps.config
-    if (cfg.svgCode !== prev.svgCode) {
+
+    if (cfg.sourceUrl !== prev.sourceUrl || cfg.svgCode !== prev.svgCode) {
       this.updateFromConfig()
     } else if (cfg !== prev && this.state.rawSvg) {
       this.processSvg(this.state.rawSvg)
     }
+
+    if (cfg.refreshInterval !== prev.refreshInterval || cfg.sourceUrl !== prev.sourceUrl) {
+      this.setupRefreshTimer()
+    }
+  }
+
+  componentWillUnmount(): void {
+    if (this.refreshTimer) window.clearInterval(this.refreshTimer)
+  }
+
+  setupRefreshTimer = (): void => {
+    if (this.refreshTimer) window.clearInterval(this.refreshTimer)
+    const { refreshInterval, sourceUrl } = this.props.config
+    if (refreshInterval && sourceUrl) {
+      this.refreshTimer = window.setInterval(() => {
+        this.fetchSvgFromUrl()
+      }, refreshInterval)
+    }
   }
 
   updateFromConfig = (): void => {
-    const { svgCode } = this.props.config
-    if (svgCode && !svgCode.trim().startsWith('<!--')) {
+    const { svgCode, sourceUrl } = this.props.config
+    if (sourceUrl) {
+      this.fetchSvgFromUrl()
+    } else if (svgCode && !svgCode.trim().startsWith('<!--')) {
       this.processSvg(svgCode)
     } else {
       this.setState({ svgHtml: null, error: null, rawSvg: null })
     }
+  }
+
+  fetchSvgFromUrl = async (): Promise<void> => {
+    const { sourceUrl } = this.props.config
+    if (!sourceUrl) return
+    try {
+      const res = await fetch(sourceUrl, {
+        headers: { Accept: 'image/svg+xml,application/json,text/plain,*/*' }
+      })
+      if (!res.ok) {
+        this.setState({ error: `Network error: ${res.status}` })
+        return
+      }
+      const contentType = res.headers.get('content-type') || ''
+      if (contentType.includes('application/json')) {
+        let data: any
+        try {
+          data = await res.json()
+        } catch (err) {
+          this.setState({ error: `Parse error: ${err.message}` })
+          return
+        }
+        try {
+          const svg = this.renderFromJson(data)
+          this.processSvg(svg)
+          if (typeof this.props.onSettingChange === 'function') {
+            this.props.onSettingChange({ id: this.props.id, config: this.props.config.set('svgCode', svg) })
+          }
+        } catch (err) {
+          this.setState({ error: `JSON rendering error: ${err.message}` })
+        }
+      } else {
+        const text = await res.text()
+        if (contentType.includes('image/svg+xml') || text.includes('<svg')) {
+          this.processSvg(text)
+          if (typeof this.props.onSettingChange === 'function') {
+            this.props.onSettingChange({ id: this.props.id, config: this.props.config.set('svgCode', text) })
+          }
+        } else {
+          this.setState({ error: 'Unsupported content type' })
+        }
+      }
+    } catch (err) {
+      this.setState({ error: `Network error: ${err.message}` })
+    }
+  }
+
+  renderFromJson = (data: any): string => {
+    if (data && typeof data.svg === 'string') return data.svg
+    throw new Error('Invalid JSON format')
   }
 
   processSvg = (svgCode: string): void => {

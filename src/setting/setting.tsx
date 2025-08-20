@@ -47,6 +47,29 @@ export default class Setting extends React.PureComponent<AllWidgetSettingProps<I
 
     return (
       <div className="jimu-widget-setting">
+        <SettingSection title={intl.formatMessage({ id: 'dataSource', defaultMessage: defaultMessages.dataSource })}>
+          <SettingRow label={intl.formatMessage({ id: 'sourceUrl', defaultMessage: defaultMessages.sourceUrl })}>
+            <input
+              type="text"
+              className="jimu-input"
+              value={config.sourceUrl || ''}
+              onChange={(e) => { this.onConfigChange('sourceUrl', e.target.value) }}
+            />
+          </SettingRow>
+          <SettingRow label={intl.formatMessage({ id: 'refreshInterval', defaultMessage: defaultMessages.refreshInterval })}>
+            <NumericInput
+              style={narrowNumericBoxStyle}
+              value={(config.refreshInterval ?? 0) / 60000}
+              onAcceptValue={(value) => { this.onConfigChange('refreshInterval', value * 60000) }}
+              min={0}
+              step={1}
+              size="sm"
+              showHandlers={false}
+              suffix="min"
+            />
+          </SettingRow>
+        </SettingSection>
+
         <SettingSection title={intl.formatMessage({ id: 'fallbackContent', defaultMessage: defaultMessages.fallbackContent })}>
           <textarea
             style={svgCodeBoxStyle}

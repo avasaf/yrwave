@@ -1,5 +1,7 @@
 {
   "svgCode": "<!-- SVG code can be pasted here -->",
+  "sourceUrl": "",
+  "refreshInterval": 0,
   "overallBackground": "#FFFFFF",
   "padding": 15,
   "logoColor": "#21292B",

@@ -1,6 +1,9 @@
 export default {
     fallbackContent: 'SVG Code',
     svgCodePlaceholder: 'Paste SVG code here',
+    dataSource: 'Data Source',
+    sourceUrl: 'Source URL',
+    refreshInterval: 'Refresh Interval (min)',
     generalStyling: 'General Styling',
     overallBackground: 'Overall Background',
     padding: 'Padding',
