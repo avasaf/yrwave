@@ -3,6 +3,9 @@ import { type ImmutableObject } from 'jimu-core'
 export interface Config {
   svgCode: string
 
+  sourceUrl?: string
+  refreshInterval?: number
+
   overallBackground: string
   padding: number
 
