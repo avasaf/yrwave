@@ -4,6 +4,7 @@ export interface Config {
   svgCode: string
 
   sourceUrl?: string
+  apiToken?: string
   refreshInterval?: number
 
   overallBackground: string

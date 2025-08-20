@@ -56,6 +56,14 @@ export default class Setting extends React.PureComponent<AllWidgetSettingProps<I
               onChange={(e) => { this.onConfigChange('sourceUrl', e.target.value) }}
             />
           </SettingRow>
+          <SettingRow label={intl.formatMessage({ id: 'apiToken', defaultMessage: defaultMessages.apiToken })}>
+            <input
+              type="text"
+              className="jimu-input"
+              value={config.apiToken || ''}
+              onChange={(e) => { this.onConfigChange('apiToken', e.target.value) }}
+            />
+          </SettingRow>
           <SettingRow label={intl.formatMessage({ id: 'refreshInterval', defaultMessage: defaultMessages.refreshInterval })}>
             <NumericInput
               style={narrowNumericBoxStyle}

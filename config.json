@@ -1,6 +1,7 @@
 {
   "svgCode": "<!-- SVG code can be pasted here -->",
-  "sourceUrl": "http://localhost:3000/v2/geodata/waveforecast/fairway",
+  "sourceUrl": "",
+  "apiToken": "",
   "refreshInterval": 0,
   "overallBackground": "#FFFFFF",
   "padding": 15,

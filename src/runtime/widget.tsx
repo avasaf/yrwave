@@ -61,12 +61,12 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
   }
 
   fetchSvgFromUrl = async (): Promise<void> => {
-    const { sourceUrl } = this.props.config
+    const { sourceUrl, apiToken } = this.props.config
     if (!sourceUrl) return
     try {
-      const res = await fetch(sourceUrl, {
-        headers: { Accept: 'image/svg+xml,application/json,text/plain,*/*' }
-      })
+      const headers: Record<string, string> = { Accept: 'image/svg+xml,application/json,text/plain,*/*' }
+      if (apiToken) headers.Authorization = `Bearer ${apiToken}`
+      const res = await fetch(sourceUrl, { headers })
       if (!res.ok) {
         this.setState({ error: `Network error: ${res.status}` })
         return
