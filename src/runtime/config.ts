@@ -1,9 +1,6 @@
 import { type ImmutableObject } from 'jimu-core'
 
 export interface Config {
-  sourceUrl: string
-  autoRefreshEnabled: boolean
-  refreshInterval: number
   svgCode: string
 
   overallBackground: string
@@ -36,9 +33,6 @@ export interface Config {
   seaCurrentColor: string
   seaAirTempColor: string
   seaWaterTempColor: string
-
-  // UI
-  refreshIconColor: string
 }
 
 export type IMConfig = ImmutableObject<Config>

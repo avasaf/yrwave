@@ -1,8 +1,5 @@
 {
-  "sourceUrl": "https://www.yr.no/en/content/1-72837/meteogram.svg",
-  "autoRefreshEnabled": true,
-  "refreshInterval": 60,
-  "svgCode": "<!-- Fallback SVG code can be pasted here -->",
+  "svgCode": "<!-- SVG code can be pasted here -->",
   "overallBackground": "#FFFFFF",
   "padding": 15,
   "logoColor": "#21292B",
@@ -24,6 +21,5 @@
   "waveHeightColor": "#00B8F1",
   "seaCurrentColor": "#006EDB",
   "seaAirTempColor": "#C60000",
-  "seaWaterTempColor": "#0097A7",
-  "refreshIconColor": "#333333"
+  "seaWaterTempColor": "#0097A7"
 }
