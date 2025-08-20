@@ -25,5 +25,12 @@ export default {
     windGustLineColor: 'Wind Gust',
     precipitationBarColor: 'Precipitation',
     maxPrecipitationColor: 'Max Precipitation',
-    refreshIconColor: 'Refresh Icon'
+    refreshIconColor: 'Refresh Icon',
+    coastGraphColors: 'Coast graph colors',
+    coastWindColor: 'Wind',
+    coastWindGustColor: 'Wind gust',
+    waveHeightColor: 'Wave height',
+    seaCurrentColor: 'Sea current',
+    seaAirTempColor: 'Air temperature',
+    seaWaterTempColor: 'Water temperature'
 }

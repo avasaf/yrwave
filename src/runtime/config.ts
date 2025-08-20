@@ -29,6 +29,14 @@ export interface Config {
   precipitationBarColor: string
   maxPrecipitationColor: string
 
+  // Coast graph colors
+  coastWindColor: string
+  coastWindGustColor: string
+  waveHeightColor: string
+  seaCurrentColor: string
+  seaAirTempColor: string
+  seaWaterTempColor: string
+
   // UI
   refreshIconColor: string
 }
