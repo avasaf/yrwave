@@ -3,6 +3,7 @@ export default {
     svgCodePlaceholder: 'Paste SVG code here',
     dataSource: 'Data Source',
     sourceUrl: 'Source URL',
+    apiToken: 'API Token',
     refreshInterval: 'Refresh Interval (min)',
     generalStyling: 'General Styling',
     overallBackground: 'Overall Background',
