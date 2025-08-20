@@ -80,14 +80,18 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
           this.setState({ error: `Parse error: ${err.message}` })
           return
         }
+        const isWave = sourceUrl.toLowerCase().includes('waveforecast')
         try {
-          const svg = this.renderFromJson(data)
+          const svg = isWave
+            ? this.renderFromWaveJson(data)
+            : this.renderFromJson(data)
           this.processSvg(svg)
           if (typeof this.props.onSettingChange === 'function') {
             this.props.onSettingChange({ id: this.props.id, config: this.props.config.set('svgCode', svg) })
           }
         } catch (err) {
-          this.setState({ error: `JSON rendering error: ${err.message}` })
+          const prefix = isWave ? 'Waveforecast JSON error' : 'JSON rendering error'
+          this.setState({ error: `${prefix}: ${err.message}` })
         }
       } else {
         const text = await res.text()
@@ -108,6 +112,48 @@ export default class Widget extends React.PureComponent<AllWidgetProps<IMConfig>
   renderFromJson = (data: any): string => {
     if (data && typeof data.svg === 'string') return data.svg
     throw new Error('Invalid JSON format')
+  }
+
+  renderFromWaveJson = (data: any): string => {
+    const series = data?.properties?.timeseries
+    if (!Array.isArray(series) || series.length === 0) {
+      throw new Error('Missing timeseries in Waveforecast data')
+    }
+
+    const points = series.map((s: any) => {
+      const details = s?.data?.instant?.details || s?.data?.details || {}
+      const height = details.sea_surface_wave_height ?? details.wave_height
+      const period = details.sea_surface_wave_mean_period ?? details.wave_period
+      const direction = details.sea_surface_wave_from_direction ?? details.wave_direction
+      if (height === undefined || height === null) {
+        throw new Error('Wave height missing in timeseries')
+      }
+      return { time: s.time, height, period, direction }
+    })
+
+    const maxHeight = Math.max(...points.map(p => p.height)) || 1
+    const barWidth = 40
+    const chartHeight = 100
+    const width = points.length * barWidth
+    const height = chartHeight + 40
+
+    const svgParts: string[] = []
+    svgParts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">`)
+    points.forEach((p, i) => {
+      const h = (p.height / maxHeight) * chartHeight
+      const x = i * barWidth + 5
+      const y = chartHeight - h + 20
+      svgParts.push(`<rect x="${x}" y="${y}" width="${barWidth - 10}" height="${h}" fill="#006edb" />`)
+      svgParts.push(`<text x="${x + (barWidth / 2)}" y="${chartHeight + 15}" font-size="10" text-anchor="middle">${p.height}</text>`)
+      if (p.period !== undefined && p.period !== null) {
+        svgParts.push(`<text x="${x + (barWidth / 2)}" y="10" font-size="8" text-anchor="middle">${p.period}s</text>`)
+      }
+      if (p.direction !== undefined && p.direction !== null) {
+        svgParts.push(`<text x="${x + (barWidth / 2)}" y="${y - 5}" font-size="8" text-anchor="middle">${p.direction}°</text>`)
+      }
+    })
+    svgParts.push('</svg>')
+    return svgParts.join('')
   }
 
   processSvg = (svgCode: string): void => {
